@@ -1,16 +1,18 @@
 import React from 'react'
 
-import { Helmet } from 'react-helmet'
-
+//reactのheaderを使う際には、react-helmet-asyncを使う
+import { HelmetProvider } from 'react-helmet-async'
 import './home.css'
 
-const Home :React.FC = () => {
+import InputProcessor from '../component/InputProcessor'
+
+const Home: React.FC = () => {
   return (
     <div className="home-container">
-      <Helmet>
+      <HelmetProvider>
         <title>Protecropper</title>
         <meta property="og:title" content="Protecropper" />
-      </Helmet>
+      </HelmetProvider>
       <header data-role="Header" className="home-header">
         <h1>ProteCropper</h1>
         <svg viewBox="0 0 1024 1024" className="home-icon">
@@ -19,17 +21,7 @@ const Home :React.FC = () => {
       </header>
       <div className="home-container1">
         <div className="home-container2">
-          <form id="drop_area" className="home-form">
-            <span className="home-text01">
-              <span>ここにDICOMをドロップ</span>
-              <br></br>
-              <span>または</span>
-              <br></br>
-            </span>
-            <button id="file_open" className="home-button button">
-              ファイルを参照
-            </button>
-          </form>
+          <InputProcessor />
           <button id="cropping" type="button" className="home-button1 button">
             <svg viewBox="0 0 1024 1024" className="home-icon2">
               <path d="M314.795 706.176c0.469 0.512 0.981 1.067 1.493 1.536s1.024 0.981 1.536 1.493c14.635 15.317 23.509 35.968 23.509 58.795 0 23.595-9.515 44.843-25.003 60.331s-36.736 25.003-60.331 25.003-44.843-9.515-60.331-25.003-25.003-36.736-25.003-60.331 9.515-44.843 25.003-60.331 36.736-25.003 60.331-25.003c22.827 0 43.477 8.875 58.795 23.509zM587.264 648.021l235.947 235.52c16.683 16.64 43.691 16.64 60.331-0.043s16.64-43.691-0.043-60.331l-235.947-235.52c-16.683-16.64-43.691-16.64-60.331 0.043s-16.64 43.691 0.043 60.331zM317.824 314.795c-0.512 0.469-1.024 0.981-1.536 1.493s-1.024 1.024-1.493 1.536c-15.317 14.635-35.968 23.509-58.795 23.509-23.595 0-44.843-9.515-60.331-25.003s-25.003-36.736-25.003-60.331 9.515-44.843 25.003-60.331 36.736-25.003 60.331-25.003 44.843 9.515 60.331 25.003 25.003 36.736 25.003 60.331c0 22.827-8.875 43.477-23.509 58.795zM342.699 403.029l108.971 108.971-108.971 108.971c-25.429-15.019-55.083-23.637-86.699-23.637-47.104 0-89.856 19.157-120.661 50.005s-50.005 73.557-50.005 120.661 19.157 89.856 50.005 120.661 73.557 50.005 120.661 50.005 89.856-19.157 120.661-50.005 50.005-73.557 50.005-120.661c0-31.616-8.619-61.269-23.637-86.699l480.469-480.469c16.683-16.683 16.683-43.691 0-60.331s-43.691-16.683-60.331 0l-311.168 311.168-108.971-108.971c15.019-25.429 23.637-55.083 23.637-86.699 0-47.104-19.157-89.856-50.005-120.661s-73.557-50.005-120.661-50.005-89.856 19.157-120.661 50.005-50.005 73.557-50.005 120.661 19.157 89.856 50.005 120.661 73.557 50.005 120.661 50.005c31.616 0 61.269-8.619 86.699-23.637z"></path>
