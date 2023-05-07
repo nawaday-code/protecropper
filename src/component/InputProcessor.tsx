@@ -3,17 +3,14 @@
 //drag&dropはreact-dndを使用
 //参照ボタンはinput type="file"を使用
 
-import React, { useState, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 import { useDrop, DropTargetMonitor } from 'react-dnd';
 //nativeTypesをimport
 import { NativeTypes } from 'react-dnd-html5-backend';
-
-
-//SingleDICOMProcessorをimport
-// import { readDICOM, getImgInfoFromDICOM, sendDICOMtoDB, sendImgInfoToDB } from '../model/SingleDICOMProcessor';
-
+import homeStyle from '../views/homeStyle.module.css';
 //SingleDICOMをimport
 import { SingleDICOM } from '../model/DICOMProcessor';
+
 
 const MAX_FILE_SIZE_BYTES = 5000000;
 
@@ -40,14 +37,10 @@ const readAndProcessFile = async (file: File) => {
       return;
     }
   
-    // SingleDICOMスクリプトのgetImgInfoFromDICOMへdicomを渡し、imageStructureデータを受け取る
-    const imageStructure = singleDICOM.getImgInfoFromDICOM(dicom);
-  
     // dicomをDBへ保存する
-    singleDICOM.sendDICOMtoDB(dicom);
-  
-    // imageStructureをDBへ保存する
-    singleDICOM.sendImgInfoToDB(imageStructure);
+    singleDICOM.sendDICOMtoDB(dicom)
+    
+    console.log("success: readAndProcessFile")
 };
 
 // 非同期でファイルをbyteとして読み込む
@@ -71,71 +64,81 @@ const readAsByteArray = async (files:FileList) => {
     await Promise.all(filesArray.map((file) => readAndProcessFile(file)));
 };
 
-//drag&dropの処理
-//useDragを使用
-//dropされるfileはDICOMファイルを想定
-//itemはtypeとidを持つ
-//collectはisDraggingを持つ
-//isDraggingはドラッグ中かどうかを判定する
-//ドラッグ中は背景色を変える
 interface DropCollectedProps {
-    isOver: boolean;
-    canDrop: boolean;
-    }
+  isOver: boolean;
+  canDrop: boolean;
+  }
 
-//export default する関数
-export const InputProcessor: React.FC = () => {
+interface props{
+  onUploadComplete: () => void;
+}
+  
+// databaseへのアップロードが完了したら、onUploadCompleteを呼び出す
+export const InputProcessor: React.FC<props> = ({onUploadComplete}) => {
     
-  // ドロップされたファイルを受け取るコールバック
-    const onDrop = useCallback((files: FileList) => {
-        readAsByteArray(files);
-    }, []);
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  const uploadData = useCallback(async (files: FileList) => {
+    await readAsByteArray(files);
+    onUploadComplete();
 
+  }, [onUploadComplete]);
+  
+  
     // react-dndのドロップゾーンを設定
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
     accept: NativeTypes.FILE,
-    drop: (item: { files: FileList }, monitor: DropTargetMonitor) => onDrop(item.files),
+    drop: (item: { files: FileList }, monitor: DropTargetMonitor) => uploadData(item.files),
     collect: (monitor: DropTargetMonitor): DropCollectedProps => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
     }),
   }));
   
-  // ファイル参照ボタンが押されたときの処理
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            readAsByteArray(e.target.files as FileList );
-        }
-    };
-
+  //ファイルを開くをクリックしたときの処理
+  const handleFileOpen = () => {
+      inputRef.current?.click();
+  };
   
+  // ファイルが選択された後の処理は、ondropHandlerと同じ
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+          uploadData(e.target.files);
+      }
+  };
+ 
   const isActive = isOver && canDrop;
 
+  // ドロップゾーンの描画
   return (
-        <form
-         ref={drop}
-         // ドラッグ中は背景色を変える
-        style={{ backgroundColor: isActive ? '#f0f0f0' : '#ffffff' }}
-        >
-            <span className="home-text01">
-                <span>ここにDICOMをドロップ</span>
-                <br />
-                <span>または</span>
-                <br />
-            </span>
-            <label htmlFor="file_open" className="home-button button">
-                ファイルを参照
-                <input
-                    type="file"
-                    id="file_open"
-                    style={{ display: 'none' }}
-                    onChange={handleFileSelect}
-                    multiple
-                    accept=".dcm, .dicom"
-                />
-            </label>    
-        </form>
-    );
-}
+    <form ref={drop}
+        // ドラッグ中は背景色を変える
+        style={{ backgroundColor: isActive ? '#87bac9' : "#4796ad" }}
 
+        className={homeStyle['container1']}>
+        <span className={homeStyle['text02']}>
+          <span>
+            <span>ここにDICOMを</span>
+            <br></br>
+            <span>drop</span>
+            <br></br>
+            <span>または</span>
+          </span>
+        </span>
+        <span onClick={handleFileOpen} style={{'cursor': 'pointer'}} className={homeStyle['text09']}>
+          <span>ファイルを開く</span>
+        </span>
+        <input
+          type="file"
+          id="file"
+          accept=".dcm"
+          ref={inputRef}
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+        />
+        
+      </form>
+  );
+  
+};
 export default InputProcessor;

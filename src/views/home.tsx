@@ -1,78 +1,114 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 
-//reactのheaderを使う際には、react-helmet-asyncを使う
-import { HelmetProvider } from 'react-helmet-async'
-import './home.css'
-
+import homeStyle from './homeStyle.module.css'
 import InputProcessor from '../component/InputProcessor'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import SectionDialog from '../component/sectionDialog'
+import DBTreeView from '../component/treeview'
 
-const Home: React.FC = () => {
+
+
+const Home = ():React.ReactElement => {
+  const [updateComplete, setUpdateComplete] = useState(false); //アップロードが完了したらtrueになる
+  const [sectionDialogOpen, setSectionDialogOpen] =useState(false);    
+
+  const handleUploadComplete = () => {
+    console.log('upload complete')
+    setUpdateComplete(true);
+  }
+  
+  // upload が完了したら、section の指定を行う dialog を表示する
+  // 並行して、drop area をtreeview に変更する
+  useEffect(() => {
+    if (updateComplete) {
+      setSectionDialogOpen(true);
+    }
+  }, [updateComplete])
+
+  const sectionCloseHandler = () => {
+    setSectionDialogOpen(false);
+  }
+
   return (
-    <div className="home-container">
-      <HelmetProvider>
-        <title>Protecropper</title>
-        <meta property="og:title" content="Protecropper" />
-      </HelmetProvider>
-      <header data-role="Header" className="home-header">
-        <h1>ProteCropper</h1>
-        <svg viewBox="0 0 1024 1024" className="home-icon">
-          <path d="M128 810h426l-136-182-106 138-78-92zM42 470h598v426h-512q-34 0-60-26t-26-60v-340zM214 128h84v86h-84v-86zM384 128h86v86h-86v-86zM128 128v86h-86q0-32 27-59t59-27zM726 810h84v86h-84v-86zM726 128h84v86h-84v-86zM42 298h86v86h-86v-86zM896 128q32 0 59 27t27 59h-86v-86zM896 298h86v86h-86v-86zM554 128h86v86h-86v-86zM982 810q0 32-27 59t-59 27v-86h86zM896 470h86v84h-86v-84zM896 640h86v86h-86v-86z"></path>
-        </svg>
+    <div className={homeStyle['container']}>
+      <header data-role="Header" className={homeStyle['header']}>
+        <img
+          alt="logo"
+          src="https://presentation-website-assets.teleporthq.io/logos/logo.png"
+          className={homeStyle['image']}
+        />
       </header>
-      <div className="home-container1">
-        <div className="home-container2">
-          <InputProcessor />
-          <button id="cropping" type="button" className="home-button1 button">
-            <svg viewBox="0 0 1024 1024" className="home-icon2">
-              <path d="M314.795 706.176c0.469 0.512 0.981 1.067 1.493 1.536s1.024 0.981 1.536 1.493c14.635 15.317 23.509 35.968 23.509 58.795 0 23.595-9.515 44.843-25.003 60.331s-36.736 25.003-60.331 25.003-44.843-9.515-60.331-25.003-25.003-36.736-25.003-60.331 9.515-44.843 25.003-60.331 36.736-25.003 60.331-25.003c22.827 0 43.477 8.875 58.795 23.509zM587.264 648.021l235.947 235.52c16.683 16.64 43.691 16.64 60.331-0.043s16.64-43.691-0.043-60.331l-235.947-235.52c-16.683-16.64-43.691-16.64-60.331 0.043s-16.64 43.691 0.043 60.331zM317.824 314.795c-0.512 0.469-1.024 0.981-1.536 1.493s-1.024 1.024-1.493 1.536c-15.317 14.635-35.968 23.509-58.795 23.509-23.595 0-44.843-9.515-60.331-25.003s-25.003-36.736-25.003-60.331 9.515-44.843 25.003-60.331 36.736-25.003 60.331-25.003 44.843 9.515 60.331 25.003 25.003 36.736 25.003 60.331c0 22.827-8.875 43.477-23.509 58.795zM342.699 403.029l108.971 108.971-108.971 108.971c-25.429-15.019-55.083-23.637-86.699-23.637-47.104 0-89.856 19.157-120.661 50.005s-50.005 73.557-50.005 120.661 19.157 89.856 50.005 120.661 73.557 50.005 120.661 50.005 89.856-19.157 120.661-50.005 50.005-73.557 50.005-120.661c0-31.616-8.619-61.269-23.637-86.699l480.469-480.469c16.683-16.683 16.683-43.691 0-60.331s-43.691-16.683-60.331 0l-311.168 311.168-108.971-108.971c15.019-25.429 23.637-55.083 23.637-86.699 0-47.104-19.157-89.856-50.005-120.661s-73.557-50.005-120.661-50.005-89.856 19.157-120.661 50.005-50.005 73.557-50.005 120.661 19.157 89.856 50.005 120.661 73.557 50.005 120.661 50.005c31.616 0 61.269-8.619 86.699-23.637z"></path>
-            </svg>
-            <span className="home-text06">Crop</span>
-          </button>
-          <div id="preview" className="home-container3">
-            <span className="home-text07">
-              <span>ここに切り取り後の</span>
-              <br></br>
-              <span>プレビューが出ます</span>
-            </span>
-          </div>
+      <div className={homeStyle['desktop']}>
+        <div className={homeStyle['sidebar']}>
+          <span className={homeStyle['text']}>
+            <span>Database</span>
+          </span>
+          <DndProvider backend={HTML5Backend}>
+            {updateComplete ?
+             <DBTreeView /> : 
+             <InputProcessor onUploadComplete={handleUploadComplete}/>
+            }
+          </DndProvider>
+          <SectionDialog isOpen={sectionDialogOpen} whenClosed={sectionCloseHandler} selectSection={'temp'}/>
         </div>
-        <section className="home-container4">
-          <div className="home-container5">
-            <div className="home-container6">
-              <span className="home-text11">
+        <div className={homeStyle['main-view']}>
+          <div className={homeStyle['input-setting']}>
+            <figure className={homeStyle['preview']}>
+              <span className={homeStyle['text11']}>
                 <span>
-                  Cropアイコンをクリックすると切り取り処理を行います。
+                  <span>ここにプレビュー画像</span>
+                  <br></br>
+                  <span>が表示されます</span>
                 </span>
-                <br></br>
-                <span>
-                  SAVEアイコンをクリックすると保存ダイアログが出ます。
-                </span>
-                <br></br>
-                <span>
-                  読み込んだ画像と切り取り後のプレビュー画像をクリックすると
-                </span>
-                <br></br>
-                <span>ビューワーが展開されます。</span>
-                <br></br>
-                <br></br>
-                <span>以下に詳細設定ができる機能を追加予定。</span>
-                <br></br>
-                <br></br>
-                <span>切り取り中はハサミアイコンが回転する予定。</span>
-                <br></br>
               </span>
-            </div>
-            <button id="save" className="home-button2 button">
-              <svg viewBox="0 0 877.7142857142857 1024" className="home-icon4">
+            </figure>
+            <button
+              id="crop"
+              type="button"
+              disabled
+              className={`${homeStyle['button']}`}
+            >
+              <svg viewBox="0 0 1024 1024" className={homeStyle['icon']}>
+                <path d="M810 128h128v42l-298 300-86-86zM512 534q22 0 22-22t-22-22-22 22 22 22zM256 854q34 0 60-25t26-61-26-61-60-25-60 25-26 61 26 61 60 25zM256 342q34 0 60-25t26-61-26-61-60-25-60 25-26 61 26 61 60 25zM412 326l526 528v42h-128l-298-298-100 100q14 30 14 70 0 70-50 120t-120 50-120-50-50-120 50-120 120-50q40 0 70 14l100-100-100-100q-30 14-70 14-70 0-120-50t-50-120 50-120 120-50 120 50 50 120q0 40-14 70z"></path>
+              </svg>
+              <span className={homeStyle['text16']}>
+                <span>Crop Start</span>
+              </span>
+            </button>
+          </div>
+          <div className={homeStyle['result']}>
+            <figure className={homeStyle['preview1']}>
+              <span className={homeStyle['text18']}>
+                <span>ここに切り取り結果が</span>
+                <br></br>
+                <span>表示されます</span>
+              </span>
+            </figure>
+            <button
+              id="save"
+              type="button"
+              disabled
+              className={`${homeStyle['button1']}`}
+            >
+              <svg
+                viewBox="0 0 877.7142857142857 1024"
+                className={homeStyle['icon2']}
+              >
                 <path d="M219.429 877.714h438.857v-219.429h-438.857v219.429zM731.429 877.714h73.143v-512c0-10.857-9.714-34.286-17.143-41.714l-160.571-160.571c-8-8-30.286-17.143-41.714-17.143v237.714c0 30.286-24.571 54.857-54.857 54.857h-329.143c-30.286 0-54.857-24.571-54.857-54.857v-237.714h-73.143v731.429h73.143v-237.714c0-30.286 24.571-54.857 54.857-54.857h475.429c30.286 0 54.857 24.571 54.857 54.857v237.714zM512 347.429v-182.857c0-9.714-8.571-18.286-18.286-18.286h-109.714c-9.714 0-18.286 8.571-18.286 18.286v182.857c0 9.714 8.571 18.286 18.286 18.286h109.714c9.714 0 18.286-8.571 18.286-18.286zM877.714 365.714v530.286c0 30.286-24.571 54.857-54.857 54.857h-768c-30.286 0-54.857-24.571-54.857-54.857v-768c0-30.286 24.571-54.857 54.857-54.857h530.286c30.286 0 72 17.143 93.714 38.857l160 160c21.714 21.714 38.857 63.429 38.857 93.714z"></path>
               </svg>
-              <span className="home-text26">
-                <span>SAVE</span>
+              <span className={homeStyle['text22']}>
+                <span>Save</span>
                 <br></br>
               </span>
             </button>
           </div>
-        </section>
+        </div>
+        <div className={homeStyle['sidebar1']}>
+          <span className={homeStyle['text25']}>
+            <span>Options</span>
+          </span>
+        </div>
       </div>
     </div>
   )
