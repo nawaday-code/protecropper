@@ -17,15 +17,13 @@ resolve: {
 
 
 module.exports = {
-  // webpack: {
-  //   configure: {
-  //     resolve: {
-        
-  //       // fallback: { "util": require.resolve("util/"), 'path': require.resolve('path-browserify') },
-  //       extensions: ['.jsx', '.js', '.tsx', '.ts'],
-  //     },
-  //   },
-  // },
+  //pathモジュールの代わりにpath-browserifyを使うように、aliasを設定する 
+  webpack: {
+    alias: {
+      path: "path-browserify",
+    },  
+  },
+
   reactScriptsVersion: "react-scripts",
   style: {
     css: {

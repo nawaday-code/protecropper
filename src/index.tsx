@@ -1,11 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+
 import Home from './views/home';
 
 
 //createBrowserRouterをつかって、ルーティングを定義する
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+//初期インスタンス化
 
 const router = createBrowserRouter([
   {
