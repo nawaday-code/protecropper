@@ -69,22 +69,9 @@ export class SingleDICOM {
   //databaseにdicomを格納する
   sendDICOMtoDB = async (dicom: dicomParser.DataSet): Promise<void> => {
     try {
-      /* const specificCharacterSet = dicom.string('x00080005')!; */
-      /* const seriesDescriptionElement = dicom.elements.x0008103E!; */
-      /* // decodeするためにbyteArrayを取得 */
-      /* const seriesDescriptionBytes = dicom.byteArray.slice(seriesDescriptionElement.dataOffset, seriesDescriptionElement.dataOffset + seriesDescriptionElement.length); */
-      /* const decorder = */
-      /*   specificCharacterSet === 'ISO_IR 100' ? */
-      /*     new TextDecoder('ISO-8859-1') : */
-      /*     new TextDecoder(specificCharacterSet); */ 
-      
-      /* /1* const seriesNameBytes = dataSet.byteArray.slice(seriesNameElement.dataOffset, seriesNameElement.dataOffset + seriesNameElement.length); *1/ */
-      /* const seriesDescription = decorder.decode(seriesDescriptionBytes); */
-      
-      console.log(`DICOMをDBに格納します.series-name:${dicom.string('x0008103E')}`)
       await dicomDB.dcmStore.add({
         section: 'temp',
-        dcmName: dicom.string('x0008103E')!,
+        dcmName: dicom.string('x0008103e')!,
         dcmDS: JSON.stringify(dicom)
       })
       console.log('DICOMをDBに格納しました.section:temp')
