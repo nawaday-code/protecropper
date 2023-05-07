@@ -1,8 +1,9 @@
 //databaseの中身をtreeviewで表示するtsx componentを作成
 import React, { useEffect, useState } from 'react';
 import { TreeView, TreeItem } from '@mui/lab';
+import {useLiveQuery} from 'dexie-react-hooks';
 
-import { dicomDB } from '../database/dexie.db';
+import { assignDCM, dicomDB } from '../database/dexie.db';
 
 
 interface renderTree{
@@ -14,8 +15,12 @@ interface renderTree{
 
 const DBTreeView : React.FC = () => {
 
-  
+    const data = useLiveQuery(() => dicomDB.dcmStore.toArray());
+
+    //databaseには、{section: string, dicom: string}の形式で保存されている
+    //このobjectを、treeviewで表示するために、renderTreeの形式に変換する
     async function getTreeData() {
+        
         
     }
     

@@ -37,8 +37,15 @@ export class SingleDICOM {
       throw new Error('Invalid input type');
     }
       
+      
+
+    //dicomDataSetのうち、Transfer Syntax UIDを取得し、再度dicomParserに渡す
+    //dicomParserはTransfer Syntax UIDによって、dicomを読み込む方法を変える
+    let dicomDataSet = dicomParser.parseDicom(inputUint8Array, { untilTag: 'x00020010' });
+    const option = { TransferSyntaxUID: dicomDataSet.string('x00020010') };
+
     //キャストしたinputUint8ArrayをdicomParserに渡し、dicomを読み込む
-    return dicomParser.parseDicom(inputUint8Array);
+    return dicomParser.parseDicom(inputUint8Array, option); 
 
   };
  
@@ -62,11 +69,25 @@ export class SingleDICOM {
   //databaseにdicomを格納する
   sendDICOMtoDB = async (dicom: dicomParser.DataSet): Promise<void> => {
     try {
-        await dicomDB.dcmStore.add({
-          section: 'temp',
-          dcmDS: JSON.stringify(dicom)
-        })
-        console.log('DICOMをDBに格納しました.section:temp')
+      /* const specificCharacterSet = dicom.string('x00080005')!; */
+      /* const seriesDescriptionElement = dicom.elements.x0008103E!; */
+      /* // decodeするためにbyteArrayを取得 */
+      /* const seriesDescriptionBytes = dicom.byteArray.slice(seriesDescriptionElement.dataOffset, seriesDescriptionElement.dataOffset + seriesDescriptionElement.length); */
+      /* const decorder = */
+      /*   specificCharacterSet === 'ISO_IR 100' ? */
+      /*     new TextDecoder('ISO-8859-1') : */
+      /*     new TextDecoder(specificCharacterSet); */ 
+      
+      /* /1* const seriesNameBytes = dataSet.byteArray.slice(seriesNameElement.dataOffset, seriesNameElement.dataOffset + seriesNameElement.length); *1/ */
+      /* const seriesDescription = decorder.decode(seriesDescriptionBytes); */
+      
+      console.log(`DICOMをDBに格納します.series-name:${dicom.string('x0008103E')}`)
+      await dicomDB.dcmStore.add({
+        section: 'temp',
+        dcmName: dicom.string('x0008103E')!,
+        dcmDS: JSON.stringify(dicom)
+      })
+      console.log('DICOMをDBに格納しました.section:temp')
     }
     catch (error) {
       console.log(error);

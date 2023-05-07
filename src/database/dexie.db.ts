@@ -4,6 +4,7 @@ import Dexie, {Table} from "dexie";
 
 export interface assignDCM{
     section: string;
+    dcmName: string;
     dcmDS: string;
 }
 
@@ -14,7 +15,7 @@ export class DICOMDatabase extends Dexie {
     constructor() {
         super("DICOMDatabase");
         this.version(1).stores({
-            dcmStore: "++id,*section,dcmDS"
+            dcmStore: "++id,*section,dcmName, dcmDS"
         });
     }
      
@@ -28,8 +29,6 @@ export class DICOMDatabase extends Dexie {
               await this.dcmStore.update(image, { section: newSection });
             }
         });
-
-        console.log('section renamed')
     }
 
 }
