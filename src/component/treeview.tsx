@@ -5,29 +5,64 @@ import {useLiveQuery} from 'dexie-react-hooks';
 
 import { assignDCM, dicomDB } from '../database/dexie.db';
 
-
-interface renderTree{
+interface RenderTree{
     id: string;
     name: string;
-    children?: renderTree[];
+    children?: RenderTree[];
 }
 
 
+
+//再帰的にtreeviewを作成する
+const renderTree = (nodes: RenderTree) =>{
+    return(
+    <TreeItem 
+        key={nodes.id}
+        nodeId={nodes.id}
+        label={nodes.name}
+        >
+        {Array.isArray(nodes.children) ? nodes.children.map((node) => renderTree(node)) : null}
+    </TreeItem>
+)
+};
+
 const DBTreeView : React.FC = () => {
 
-    const data = useLiveQuery(() => dicomDB.dcmStore.toArray());
+    //sectionの一覧を取得する
+    const sections = useLiveQuery(() => dicomDB.dcmStore.orderBy("section").uniqueKeys(), []);
+    const dbItems = useLiveQuery(() => dicomDB.dcmStore.toArray(), []);
 
-    //databaseには、{section: string, dicom: string}の形式で保存されている
+    // treeDataから、treeviewに表示するデータを作成する
+    //databaseには、{section: string, dcmName: string}の形式で保存されている
     //このobjectを、treeviewで表示するために、renderTreeの形式に変換する
-    async function getTreeData() {
-        
-        
-    }
-    
+
     return (
-        <div>
-            
-        </div>
+        <TreeView
+            aria-label="controlled"
+            defaultCollapseIcon={
+              <span className="MuiIcon-root MuiIcon-fontSizeSmall">-</span>
+            }
+            defaultExpandIcon={
+              <span className="MuiIcon-root MuiIcon-fontSizeSmall">+</span>
+            }
+        >
+            {
+                sections?.map((section) => {
+                    const children = dbItems?.filter((item) => item.section === section);
+                    const treeData: RenderTree = {
+                        id: section.toString(),
+                        name:section.toString(), 
+                        children: children?.map((child) => {
+                            return {
+                                id: child.dcmName,
+                                name: child.dcmName
+                            }
+                        })
+                    }
+                    return renderTree(treeData);
+                })
+            }
+        </TreeView>
     )
 }
 export default DBTreeView

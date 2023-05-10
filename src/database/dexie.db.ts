@@ -30,7 +30,7 @@ export class DICOMDatabase extends Dexie {
             }
         });
     }
-
+   
 }
 
 export const dicomDB = new DICOMDatabase();
